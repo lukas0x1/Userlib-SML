@@ -6,9 +6,14 @@
 #include "includes/imgui/imgui.h"
 #include "includes/misc/Logger.h"
 
+
+bool test = 0;
 uintptr_t (*AvatarEnergy_Use)(uintptr_t thiz, unsigned int a2, float amount);
 uintptr_t Hook_AvatarEnergy_Use(uintptr_t thiz, unsigned int a2, float amount){
         LOGD("hook 01");
+        if(test){
+                return AvatarEnergy_Use(thiz, 0, 0);
+        }
         return AvatarEnergy_Use(thiz, a2, amount);
 }
 
@@ -20,13 +25,8 @@ uintptr_t Hook_AvatarEnergy_Use2(uintptr_t thiz, unsigned int a2, float amount){
 
 
 void Menu() {
-        static int counter = 0;
-        ImGui::Begin("Userlib Menu");
-        if (ImGui::Button("counter")) counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::End();
+        ImGui::Checkbox("Relationships", (bool *)(Cipher::get_libBase() + 0x16A66F8));
+        ImGui::Checkbox("Energy", &test);
 }
 
 
