@@ -7,7 +7,7 @@
 #include "pthread.h"
 
 
-
+extern "C"
 func Start(){
     Init();
     return &Menu;
