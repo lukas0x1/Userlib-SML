@@ -1,0 +1,12 @@
+{
+  "name": "libuserlib.so",
+  "description": "Optional mod description. If this is presend in the config file, an Info button will be shown in the mod manager that will show this text",
+  "majorVersion":1,
+  "minorVersion":0,
+  "patchVersion":0,
+  "displayName":"Mod Name",
+  "displaysUI":true,
+  "dependencies": [
+
+  ]
+}

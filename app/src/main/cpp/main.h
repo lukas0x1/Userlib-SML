@@ -5,7 +5,7 @@
 #ifndef USERLIB_MAIN_H
 #define USERLIB_MAIN_H
 
-void UserlibMenu();
-void Init(Cipher *cipher);
+void Menu();
+void Init();
 
 #endif //USERLIB_MAIN_H
