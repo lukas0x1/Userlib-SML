@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19.0)
-set(CIPHER_URL https://github.com/ehter0x1/SML-filehost/releases/latest/download/libciphered.so)
+set(CIPHER_URL https://github.com/lukas0x1/SML-filehost/releases/latest/download/libciphered.so)
 set(CIPHER_PATH ${CMAKE_BINARY_DIR}/libciphered.so)
 file(DOWNLOAD ${CIPHER_URL} ${CIPHER_PATH} STATUS LIBCIPHER_DOWNLOAD_STATUS)
 
@@ -15,7 +15,6 @@ add_library( # Sets the name of the library.
         ${CUR_NAME}
         SHARED
         main.cpp
-        includes/cipher/cipher.cpp
         )
 
 find_library(
