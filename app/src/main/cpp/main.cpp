@@ -2,6 +2,7 @@
 // Created by Lukas on 22/07/2022.
 //
 
+#include "main.h"
 #include "includes/cipher/Cipher.h"
 #include "includes/imgui/imgui.h"
 #include "includes/misc/Logger.h"

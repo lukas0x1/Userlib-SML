@@ -5,6 +5,7 @@
 #ifndef USERLIB_MAIN_H
 #define USERLIB_MAIN_H
 
+typedef void (*func)();
 void Menu();
 void Init();
 
