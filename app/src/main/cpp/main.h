@@ -8,4 +8,11 @@
 void Menu();
 void Init();
 
+extern "C"
+func Start(){
+    Init();
+    return &Menu;
+}
+
+
 #endif //USERLIB_MAIN_H
