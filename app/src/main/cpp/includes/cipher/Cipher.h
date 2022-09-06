@@ -14,6 +14,8 @@ typedef void (*func)();
 
 class Cipher {
 public:
+    static uint32_t getGameVersion();
+    static bool isGameBeta();
     static uintptr_t get_libBase();
     static const char *get_libName();
     static uintptr_t CipherScan(const char *pattern, const char *mask); //librange
