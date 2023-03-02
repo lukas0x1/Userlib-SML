@@ -3,9 +3,9 @@
 //
 
 #include "main.h"
-#include "includes/cipher/Cipher.h"
-#include "includes/imgui/imgui.h"
-#include "includes/misc/Logger.h"
+#include "include/cipher/Cipher.h"
+#include "include/imgui/imgui.h"
+#include "include/misc/Logger.h"
 
 
 
