@@ -43,7 +43,6 @@ android {
 android {
         namespace 'com.cipher.userlib'
     }
-    ndkVersion = '26.1.10909125'
 }
 
 dependencies {
