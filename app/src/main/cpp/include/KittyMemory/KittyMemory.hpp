@@ -12,9 +12,14 @@
 #include <sys/mman.h>
 #include <vector>
 
+#ifdef __APPLE__
+#include <mach/mach.h>
+#include <mach-o/dyld.h>
+#include <mach-o/getsect.h>
+#include <libkern/OSCacheControl.h>
+#endif
 
-
-#include "KittyUtils.h"
+#include "KittyUtils.hpp"
 
 #define KT_PAGE_SIZE (sysconf(_SC_PAGE_SIZE))
 
@@ -32,7 +37,7 @@
 
 #define KITTY_LOG_TAG "KittyMemory"
 
-
+#ifdef __ANDROID__
 #include <android/log.h>
 
 #ifdef kITTYMEMORY_DEBUG
@@ -44,10 +49,35 @@
 #define KITTY_LOGI(fmt, ...) ((void)__android_log_print(ANDROID_LOG_INFO, KITTY_LOG_TAG, fmt,  ##__VA_ARGS__))
 #define KITTY_LOGE(fmt, ...) ((void)__android_log_print(ANDROID_LOG_ERROR, KITTY_LOG_TAG, fmt, ##__VA_ARGS__))
 
+#elif __APPLE__
+#include <os/log.h>
 
+#ifdef kITTYMEMORY_DEBUG
+#define KITTY_LOGD(fmt, ...) os_log(OS_LOG_DEFAULT, "D " KITTY_LOG_TAG ": " fmt, ##__VA_ARGS__)
+#else
+#define KITTY_LOGD(fmt, ...) do {} while(0)
+#endif
+
+#define KITTY_LOGI(fmt, ...) os_log(OS_LOG_DEFAULT, "I " KITTY_LOG_TAG ": " fmt, ##__VA_ARGS__)
+#define KITTY_LOGE(fmt, ...) os_log_error(OS_LOG_DEFAULT, "E " KITTY_LOG_TAG ": " fmt, ##__VA_ARGS__)
+
+#endif
 
 namespace KittyMemory
 {
+
+    /*
+     * mprotect wrapper
+     */
+    int setAddressProtection(const void *address, size_t length, int protection);
+
+    /*
+     * Reads an address content into a buffer
+     */
+    bool memRead(const void *address, void *buffer, size_t len);
+
+#ifdef __ANDROID__
+
     class ProcMap {
     public:
         unsigned long long startAddress;
@@ -58,7 +88,7 @@ namespace KittyMemory
         unsigned long long offset;
         std::string dev;
         unsigned long inode;
-        std::string pathname;std::string perms;
+        std::string pathname;
 
         ProcMap() : startAddress(0), endAddress(0), length(0), protection(0),
 		            readable(false), writeable(false), executable(false),
@@ -79,21 +109,10 @@ namespace KittyMemory
         }
     };
 
-
-    /*
-    * mprotect wrapper
-    */
-    int setAddressProtection(const void *address, size_t length, int protection);
-
-    /*
-     * Reads an address content into a buffer
-     */
-    bool memRead(const std::vector<ProcMap>& getAllMaps, const void *address, void *buffer, size_t len);
-
     /*
      * Writes buffer content to an address
      */
-    bool memWrite(const std::vector<ProcMap>& getAllMaps, void *address, const void *buffer, size_t len);
+    bool memWrite(void *address, const void *buffer, size_t len);
 
     /*
      * /proc/self/cmdline
@@ -150,9 +169,84 @@ namespace KittyMemory
      */
     ProcMap getElfBaseMap(const std::string& name);
 
-    std::string ReadHexStr(const std::vector<ProcMap>& getAllMaps, const void *address, size_t len);
+#elif __APPLE__
 
-    std::vector<ProcMap> getBootloaderMaps();
+    enum Memory_Status {
+      KMS_FAILED = 0,
+      KMS_SUCCESS,
+      KMS_INV_ADDR,
+      KMS_INV_LEN,
+      KMS_INV_BUF,
+      KMS_ERR_PROT,
+      KMS_ERR_GET_PAGEINFO,
+      KMS_ERR_MMAP,
+      KMS_ERR_REMAP,
+      KMS_ERR_VMCOPY,
+    };
 
-    uintptr_t search(const char* pattern, const char* mask, const char* libName, const size_t& offset = 0x0);
+    struct seg_data_t {
+      uintptr_t start, end;
+      unsigned long size;
+      seg_data_t() : start(0), end(0), size(0) {}
+    };
+    
+    class MemoryFileInfo {
+    public:
+      uint32_t index;
+#ifdef __LP64__
+      const mach_header_64 *header;
+#else
+      const mach_header *header;
+#endif
+      const char *name;
+      intptr_t address;
+
+      MemoryFileInfo() : index(0), header(nullptr), name(nullptr), address(0) {}
+
+      inline seg_data_t getSegment(const char *seg_name) const
+      {
+        seg_data_t data {};
+        if (!header || !seg_name) return data;
+        data.start = uintptr_t(getsegmentdata(header, seg_name, &data.size));
+        data.end = data.start + data.size;
+        return data;
+      }
+
+      inline seg_data_t getSection(const char *seg_name, const char *sect_name) const
+      {
+        seg_data_t data {};
+        if (!header || !seg_name || !sect_name) return data;
+        data.start = uintptr_t(getsectiondata(header, seg_name, sect_name, &data.size));
+        data.end = data.start + data.size;
+        return data;
+      }
+    };
+
+    /*
+     * Writes buffer content to an address
+     */
+    Memory_Status memWrite(void *address, const void *buffer, size_t len);
+
+    /*
+     * vm_region_recurse_64 wrapper
+     */
+    kern_return_t getPageInfo(void *page_start, vm_region_submap_short_info_64 *info_out);
+
+    /*
+     * returns base executable info
+     */
+    MemoryFileInfo getBaseInfo();
+
+    /*
+     * find in memory file info by checking if target loaded object file ends with @fileName
+     */
+    MemoryFileInfo getMemoryFileInfo(const std::string& fileName);
+
+    /*
+     * returns the absolue address of a relative offset of a file in memory or NULL as fileName for base executable
+     */
+    uintptr_t getAbsoluteAddress(const char *fileName, uintptr_t address);
+
+#endif
+
 }

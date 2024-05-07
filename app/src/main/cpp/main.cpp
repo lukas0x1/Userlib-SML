@@ -3,18 +3,23 @@
 //
 
 #include "main.h"
-#include "includes/cipher/Cipher.h"
-#include "includes/imgui/imgui.h"
-#include "includes/misc/Logger.h"
+#include "include/Cipher/Cipher.h"
+#include "include/imgui/imgui.h"
+#include "include/misc/Logger.h"
 
 
 
-
-void Menu() {
-        ImGui::Checkbox("Relationships", (bool *)(Cipher::get_libBase() + 0x16A66F8));
+// UI related functions
+void Menu(bool *_pOpen) { // _pOpen is passed by canvas. Used to close and open the mod locally
+    ImGui::Checkbox("Close me!", (bool *)(_pOpen));
 }
 
+// Called in a later stage of game initialisation
+void InitLate() {
 
-void Init(){
+}
 
-};
+// Called at the start of the game
+void Init() {
+
+}

@@ -10,7 +10,7 @@
 #include <utility>
 #include <random>
 
-
+#ifdef __ANDROID__
 
 #include <elf.h>
 #ifdef __LP64__
@@ -25,14 +25,15 @@
 #define ELFW_(x) ELF32_##x
 #endif
 
-
+#endif // __ANDROID__
 
 namespace KittyUtils {
 
+#ifdef __ANDROID__
     std::string getExternalStorage();
     int getAndroidVersion();
     int getAndroidSDK();
-
+#endif
 
     std::string fileNameFromPath(const std::string &filePath);
     std::string fileDirectory(const std::string &filePath);
@@ -136,7 +137,7 @@ namespace KittyUtils {
         return ss.str();
     }
 
-
+#ifdef __ANDROID__
 
     namespace Elf {
         namespace ElfHash {
@@ -180,6 +181,6 @@ namespace KittyUtils {
         }
     }
 
-
+#endif // __ANDROID__
 
 }

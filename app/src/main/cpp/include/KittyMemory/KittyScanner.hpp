@@ -5,11 +5,10 @@
 #include <vector>
 #include <utility>
 
-#include "KittyMemory.h"
+#include "KittyMemory.hpp"
 
 namespace KittyScanner
 {
-    uintptr_t find(const uintptr_t pstart, const size_t size, const char *pattern, const char *mask);
     /**
      * Search for bytes within a memory range and return all results
      * 
@@ -105,6 +104,7 @@ namespace KittyScanner
      */
     uintptr_t findDataFirst(const uintptr_t start, const uintptr_t end, const void *data, size_t size);
 
+#ifdef __ANDROID__
     
     class RegisterNativeFn
     {
@@ -237,5 +237,6 @@ namespace KittyScanner
         static std::vector<std::pair<uintptr_t, ElfScanner>> findSymbolAll(const std::string& symbolName);
     };
 
+#endif // __ANDROID__
 
 }

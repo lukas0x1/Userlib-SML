@@ -10,7 +10,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "KittyMemory.h"
+#include "KittyMemory.hpp"
 
 enum MP_ASM_ARCH {
     MP_ASM_ARM32 = 0,
@@ -22,7 +22,6 @@ enum MP_ASM_ARCH {
 class MemoryPatch
 {
 private:
-    std::vector<KittyMemory::ProcMap> getAllmaps;
     uintptr_t _address;
     size_t _size;
 
@@ -43,6 +42,7 @@ public:
     static MemoryPatch createWithAsm(uintptr_t absolute_address, MP_ASM_ARCH asm_arch, const std::string &asm_code, uintptr_t asm_address=0);
 #endif
 
+#ifdef __ANDROID__
 
     static MemoryPatch createWithBytes(const KittyMemory::ProcMap &map, uintptr_t address, const void *patch_code, size_t patch_size);
     static MemoryPatch createWithHex(const KittyMemory::ProcMap &map, uintptr_t address, const std::string &hex);
@@ -54,6 +54,19 @@ public:
      static MemoryPatch createWithAsm(const KittyMemory::ProcMap &map, uintptr_t address, MP_ASM_ARCH asm_arch, const std::string &asm_code, uintptr_t asm_address=0);
 #endif
 
+#elif __APPLE__
+
+    static MemoryPatch createWithBytes(const char *fileName, uintptr_t address, const void *patch_code, size_t patch_size);
+    static MemoryPatch createWithHex(const char *fileName, uintptr_t address, const std::string &hex);
+    
+#ifndef kNO_KEYSTONE
+    /**
+     * Keystone assembler
+     */
+     static MemoryPatch createWithAsm(const char *fileName, uintptr_t address, MP_ASM_ARCH asm_arch, const std::string &asm_code, uintptr_t asm_address=0);
+#endif
+
+#endif
 
 
     bool isValid() const;
