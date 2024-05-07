@@ -3351,7 +3351,7 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
             if (z != NULL) {
                if (j == 0 && off_y != 0) {
                   if (z->ey < scan_y_top) {
-                     // this can happen due to subpixel positioning and some kind of origFunc rounding error i think
+                     // this can happen due to subpixel positioning and some kind of fp rounding error i think
                      z->ey = scan_y_top;
                   }
                }
